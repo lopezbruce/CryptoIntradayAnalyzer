@@ -9,7 +9,7 @@ load_dotenv()  # Load environment variables from .env file
 client = openai.OpenAI(api_key=os.getenv("OPENAI_API_KEY")) # Initialize the OpenAI client
 
 # Define constants
-GPT_MODEL = os.getenv("MODEL_NAME","gpt-3.5-turbo")
+GPT_MODEL = os.getenv("GPT_MODEL","gpt-3.5-turbo")
 EMBEDDING_MODEL = os.getenv("EMBEDDING_MODEL","text-embedding-3-small") 
 BATCH_SIZE = int(os.getenv("BATCH_SIZE",1000))  # you can submit up to 2048 embedding inputs per request
 JSON_FILE_PATH = os.getenv("JSON_FILE_PATH","data/raw/BTCUSD_Intraday_2023-02-28_2023-02-19.json")
@@ -71,6 +71,13 @@ for batch_start in range(0, len(json_strings), BATCH_SIZE):
         assert i == be.index  # double check embeddings are in same order as input
     batch_embeddings = [e.embedding for e in response.data]
     embeddings.extend(batch_embeddings)
+
+# Define the directory path
+dir_path = 'data/processed'
+
+# Check if the directory exists, if not, create it
+if not os.path.exists(dir_path):
+    os.makedirs(dir_path)
 
 # Step 6: Create DataFrame and save to CSV
 df = pd.DataFrame({"text": json_strings, "embedding": embeddings})
